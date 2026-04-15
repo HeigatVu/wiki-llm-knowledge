@@ -1,0 +1,20 @@
+{
+  "recentFiles": [
+    {
+      "basename": "Daily Note Template",
+      "path": "90_System/Templates/Daily Note Template.md"
+    },
+    {
+      "basename": "Default Property Template",
+      "path": "90_System/Templates/Default Property Template.md"
+    },
+    {
+      "basename": "Paper Summary Template",
+      "path": "90_System/Templates/Paper Summary Template.md"
+    }
+  ],
+  "omittedPaths": [],
+  "omittedTags": [],
+  "updateOn": "file-open",
+  "omitBookmarks": false
+}

@@ -1,0 +1,27 @@
+# Ignore all knowledge folders
+00_Inbox/
+10_Journal/
+20_My-knowledge/
+30_Library/
+40_Project-papers/
+
+# Ignore Obsidian workspace settings (usually machine-specific)
+.obsidian/workspace.json
+.obsidian/backlink.json
+.obsidian/graph.json
+.obsidian/page-preview.json
+.obsidian/core-plugins.json (optional, but often kept)
+
+# Ignore media and deleted files
+90_System/Attachments/
+90_System/Archive/
+.trash/
+
+# Keep system configuration and templates
+!90_System/
+!90_System/Templates/
+!90_System/Templates/*.md
+!90_System/SEVERAL GOOD GITHUB.md
+
+# Keep the instruction manual
+GEMINI.md
