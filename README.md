@@ -15,23 +15,23 @@ uv sync
 ```
 wiki-llm-knowledge/
   20_raw/
-    my_knowledge_notes/     ← personal knowledge notes (.md)
-    papers/
-      my_notes/             ← your paper notes (.md)
-      pdf/                  ← original PDFs
+	|-my_knowledge_notes/     ← personal knowledge notes (.md)
+	|-papers/
+	  |--my_notes/             ← your paper notes (.md)
+	  |--pdf/                  ← original PDFs
   30_wiki/
-    index.md                ← catalog of all pages
-    log.md                  ← append-only history
-    overview.md             ← living synthesis
-    sources/
-      papers/               ← ingested paper pages
-      notes/                ← ingested knowledge pages
-    entities/               ← people, projects, products
-    concepts/               ← ideas, frameworks, theories
-    syntheses/              ← saved query answers
+	|-index.md                ← catalog of all pages
+	|-log.md                  ← append-only history
+	|-overview.md             ← living synthesis
+	|-sources/
+	  |-papers/               ← ingested paper pages
+	  |-notes/                ← ingested knowledge pages
+	|-entities/               ← people, projects, products
+	|-concepts/               ← ideas, frameworks, theories
+	|-syntheses/              ← saved query answers
   2_graph/
-    graph.json              ← auto-generated graph data
-    graph.html              ← visual graph explorer
+	|-graph.json              ← auto-generated graph data
+	|-graph.html              ← visual graph explorer
   1_tools/                    ← Python pipeline scripts
   GEMINI.md                 ← Gemini CLI system prompt
   WIKI_STATUS.md            ← handoff file between Python and CLI
