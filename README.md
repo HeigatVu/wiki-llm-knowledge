@@ -1,5 +1,5 @@
 # Background
-- I based on description of Andrew Karpathy about [llm-wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Besides, I also refer the idea of [SamurAIGPT](https://github.com/SamurAIGPT/llm-wiki-agent). I appreciate their suggestion because it inspire me a lot.
+- I based on description of Andrew Karpathy about [llm-wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Besides, I also refer the idea of [SamurAIGPT](https://github.com/SamurAIGPT/llm-wiki-agent). I appreciate their suggestion because these idea inspire and guide me a lot to finish my workflow and code.
 - The reason I build this repo to solve one problem about linking between papers and suggest about my knowledge notes. So I leverage the power of LLM to suggest me fixing and writing in obsidian.
 # Setup
 ## UV
