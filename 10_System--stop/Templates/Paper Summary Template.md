@@ -5,19 +5,19 @@ Year:
 Source:
 tags:
 ---
-## 🔬 Core Contribution
+##  Core Contribution
 One sentence summary of what this paper adds to the field.
 
-## 🧠 Key Methodology
+##  Key Methodology
 - 
 
-## 📊 Results & Conclusions
+##  Results & Conclusions
 - 
 
-## 🧪 Personal Critique & Ideas
+##  Personal Critique & Ideas
 - How does this apply to my current research?
 - What are the limitations?
 
-## 🔗 Related Notes
+##  Related Notes (optional)
 - [[Note 1]]
 - [[Note 2]]

@@ -1,16 +1,60 @@
 {
   "recentFiles": [
     {
+      "basename": "Paper Summary Template",
+      "path": "10_System--stop/Templates/Paper Summary Template.md"
+    },
+    {
+      "basename": "Benjamens2020-the state of AI based FDA approved medical devices and algorithms",
+      "path": "20_raw/20_papers/20.3_pdf/Topic--stop/other/Benjamens2020-the state of AI based FDA approved medical devices and algorithms.pdf"
+    },
+    {
       "basename": "Daily Note Template",
-      "path": "90_System/Templates/Daily Note Template.md"
+      "path": "10_System--stop/Templates/Daily Note Template.md"
     },
     {
       "basename": "Default Property Template",
-      "path": "90_System/Templates/Default Property Template.md"
+      "path": "10_System--stop/Templates/Default Property Template.md"
     },
     {
-      "basename": "Paper Summary Template",
-      "path": "90_System/Templates/Paper Summary Template.md"
+      "basename": "s44400-025-00040-0",
+      "path": "20_raw/20_papers/20.3_pdf/alzheimer/alzheimer--stop/Technique/s44400-025-00040-0.pdf"
+    },
+    {
+      "basename": "s41598-024-56706-x",
+      "path": "20_raw/20_papers/20.3_pdf/alzheimer/alzheimer--stop/Technique/s41598-024-56706-x.pdf"
+    },
+    {
+      "basename": "jpad.2022.66",
+      "path": "20_raw/20_papers/20.3_pdf/alzheimer/alzheimer--stop/Technique/jpad.2022.66.pdf"
+    },
+    {
+      "basename": "2506.01129v1",
+      "path": "20_raw/20_papers/20.3_pdf/alzheimer/alzheimer--stop/Technique/2506.01129v1.pdf"
+    },
+    {
+      "basename": "wallace2015",
+      "path": "20_raw/20_papers/20.3_pdf/speech for kid/speech for kid--stop/writing/wallace2015.pdf"
+    },
+    {
+      "basename": "How many words make a sample  Determining the minimum number of word tokens needed in connected speech samples for child speech assessment",
+      "path": "20_raw/20_papers/20.3_pdf/speech for kid/speech for kid--stop/writing/How many words make a sample  Determining the minimum number of word tokens needed in connected speech samples for child speech assessment.pdf"
+    },
+    {
+      "basename": "guidelines-for-analysis-of-child-speech-data",
+      "path": "20_raw/20_papers/20.3_pdf/speech for kid/speech for kid--stop/writing/guidelines-for-analysis-of-child-speech-data.pdf"
+    },
+    {
+      "basename": "towey2020-CHOCSLAT",
+      "path": "20_raw/20_papers/20.3_pdf/speech for kid/App/towey2020-CHOCSLAT.pdf"
+    },
+    {
+      "basename": "Dien2020 - develop Vietnam aphasia test",
+      "path": "20_raw/20_papers/20.3_pdf/alzheimer/alzheimer--stop/thesis/Dien2020 - develop Vietnam aphasia test.pdf"
+    },
+    {
+      "basename": "Hampel2016 - the rising global tide of cognitive impairment",
+      "path": "20_raw/20_papers/20.3_pdf/alzheimer/alzheimer--stop/For Wiriting Introduction/Hampel2016 - the rising global tide of cognitive impairment.pdf"
     }
   ],
   "omittedPaths": [],

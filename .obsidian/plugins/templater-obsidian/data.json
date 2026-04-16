@@ -1,6 +1,6 @@
 {
   "command_timeout": 5,
-  "templates_folder": "90_System/Templates",
+  "templates_folder": "10_System--stop",
   "templates_pairs": [
     [
       "",
@@ -32,7 +32,7 @@
     ""
   ],
   "startup_templates": [
-    "90_System/Templates/Default Property Template.md"
+    "10_System--stop/Templates/Default Property Template.md"
   ],
   "intellisense_render": 1
 }
