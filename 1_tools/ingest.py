@@ -212,17 +212,40 @@ def build_ingest_prompt(source_content, source, wiki_context, schema, today, not
         """
     return prompt
 
-def detect_note_type(content: str) -> str:
-    """Detect whether a note is a paper note or a personal knowledge note."""
-    frontmatter = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
-    if not frontmatter:
+def detect_note_type(source_path: Path, content: str) -> str:
+    path_str = str(source_path)
+
+    # Path-based detection first — most reliable
+    if "papers/my_notes" in path_str or "papers/pdf" in path_str:
+        return "paper"
+    if "my_knowledge_notes" in path_str:
         return "knowledge"
-    fields = frontmatter.group(1)
-    has_paper_fields = any(
-        re.search(rf'^{field}:', fields, re.MULTILINE)
-        for field in ["Title", "Authors", "Year", "Source"]
-    )
-    return "paper" if has_paper_fields else "knowledge"
+
+    # Fallback: inspect frontmatter fields
+    frontmatter = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
+    if frontmatter:
+        fields = frontmatter.group(1)
+        has_paper_fields = any(
+            re.search(rf'^{field}:', fields, re.MULTILINE)
+            for field in ["Title", "Authors", "Year", "Source"]
+        )
+        if has_paper_fields:
+            return "paper"
+
+    return "knowledge"
+
+def read_source(source: Path) -> str:
+    if source.suffix.lower() == ".pdf":
+        try:
+            from pypdf import PdfReader
+        except ImportError:
+            print("Error: pypdf not installed. Run: pip install pypdf")
+            sys.exit(1)
+        reader = PdfReader(str(source))
+        return "\n\n".join(
+            page.extract_text() for page in reader.pages if page.extract_text()
+        )
+    return source.read_text(encoding="utf-8")
 
 def ingest(source_path:str) -> None:
     """Ingest a source file into the wiki."""
@@ -231,7 +254,7 @@ def ingest(source_path:str) -> None:
         print(f"Error: Source file not found: {source}")
         sys.exit(1)
         
-    source_content = source.read_text(encoding="utf-8")
+    source_content = read_source(source)
     source_hash = sha256(source_content)
     today = date.today().isoformat()
     print(f"\nIngesting: {source.name}  (hash: {source_hash})")
@@ -239,7 +262,7 @@ def ingest(source_path:str) -> None:
     wiki_context = build_wiki_context()
     schema = read_file(SCHEMA_FILE)
     
-    note_type = detect_note_type(source_content)
+    note_type = detect_note_type(source, source_content)
     prompt = build_ingest_prompt(source_content, source, wiki_context, schema, today, note_type)
     
     print(f"Calling API (model: ...)")

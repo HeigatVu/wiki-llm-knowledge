@@ -51,11 +51,13 @@ def find_stale_sources(force: bool = False) -> list[tuple[Path, Path]]:
     if not SOURCES_DIR.exists():
         return stale
 
-    for wiki_page in sorted(SOURCES_DIR.glob("*.md")):
+    for wiki_page in sorted(SOURCES_DIR.rglob("*.md")):
         content = read_file(wiki_page)
         source_file = extract_source_file(content)
         if not source_file:
-            continue
+            continue                    # skip pages with no source_file
+        if source_file.endswith(".pdf"):
+            continue                    # skip PDF-sourced pages
 
         raw_path = REPO_ROOT / source_file
         if not raw_path.exists():
