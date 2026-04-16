@@ -1,7 +1,7 @@
 # Ignore all knowledge folders
-20_raw/
-30_wiki/
-40_output/
+20_raw/*
+30_wiki/*
+40_output/*
 
 # Ignore Obsidian workspace settings (usually machine-specific)
 .obsidian/workspace.json
