@@ -8,15 +8,14 @@ tags:
 ##  Core Contribution
 One sentence summary of what this paper adds to the field.
 
-##  Key Methodology
+##  Key Methodology (Important)
 - 
 
 ##  Results & Conclusions
 - 
 
 ##  Personal Critique & Ideas
-- How does this apply to my current research?
-- What are the limitations?
+- 
 
 ##  Related Notes (optional)
 - [[Note 1]]
