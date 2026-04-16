@@ -32,7 +32,7 @@
     ""
   ],
   "startup_templates": [
-    "10_System--stop/Templates/Default Property Template.md"
+    "10_System/Templates/Default Property Template.md"
   ],
   "intellisense_render": 1
 }
