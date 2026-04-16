@@ -3,9 +3,9 @@ import sys
 from pathlib import Path
 
 try:
-    from litellm import completion
+    import google.generativeai as genai
 except ImportError:
-    print("Error: litellm not installed. Run: pip install litellm")
+    print("Error: google-generativeai not installed. Run: pip install google-generativeai")
     sys.exit(1)
 
 # Ensure the tools directory is in the path to allow imports
@@ -19,16 +19,22 @@ WIKI_DIR = REPO_ROOT / "30_wiki"
 ENTITIES_DIR = WIKI_DIR / "entities"
 
 def call_llm(prompt: str, max_tokens: int = 1500) -> str:
-    # Use litellm standard environment variables
-    # e.g., GEMINI_API_KEY, ANTHROPIC_API_KEY, OPENAI_API_KEY
-    model = os.getenv("LLM_MODEL", "gemini-3-flash-preview")
-    
-    response = completion(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=max_tokens
+    """Call LLM with prompt."""
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        print("Error: GEMINI_API_KEY not set in .env file")
+        sys.exit(1)
+        
+    genai.configure(api_key=api_key)
+    model_name = os.getenv("LLM_MODEL", "gemini-3-flash-preview")
+    model = genai.GenerativeModel(model_name)
+
+    response = model.generate_content(
+        prompt,
+        generation_config=genai.types.GenerationConfig(max_output_tokens=max_tokens)
     )
-    return response.choices[0].message.content
+
+    return response.text
 
 def search_sources(entity: str, pages: list[Path]) -> list[Path]:
     """Find up to 15 pages where this entity is mentioned natively."""
