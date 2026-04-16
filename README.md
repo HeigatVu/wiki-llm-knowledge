@@ -37,8 +37,8 @@ wiki-llm-knowledge/
   WIKI_STATUS.md            ← handoff file between Python and CLI
   main.py                    ← single entry point
 ```
-
-# COMMANDS
+# Workflow
+## Ingest
 ```
 # Ingest a single paper note
 uv run main.py ingest 20_raw/papers/my_notes/paper_note.md
@@ -56,7 +56,7 @@ uv run main.py ingest 20_raw/my_knowledge_notes/
 # Validate wiki integrity only, no ingest
 uv run main.py ingest --validate-only
 ```
-# Workflow
+
 ## Query (automated / scripted only)
 ```
 # Ask a question, print answer to terminal
