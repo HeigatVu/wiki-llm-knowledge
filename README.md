@@ -4,6 +4,8 @@
 - I also add WIKI_STATUS.md to track the status of my wiki when I use gemini.
 - In my opinion, each project or our knowledge should be seperated wiki. So I build this repo to manage **my knowledge and my project paper notes**.
 - When we use for project research with reading a lot of paper, we should use template in 10_System/Templates/Paper_Summary_Template.md. By constrast, for taking notes knowledge, we should use Default_Proterty_Template.md
+
+***NOTE: This repo is just process markdown file to save token and easy for gemini to read.***
 # Setup
 ## UV
 ```
@@ -39,6 +41,7 @@ wiki-llm-knowledge/
   GEMINI.md                 ← Gemini CLI system prompt
   WIKI_STATUS.md            ← handoff file between Python and CLI
   main.py                    ← single entry point
+  .env                        ← API key and model container
 ```
 # Workflow
 ## Ingest
