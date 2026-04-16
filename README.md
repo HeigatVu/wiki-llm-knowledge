@@ -1,7 +1,13 @@
+# Background
+I based on description of Andrew Karpathy about [llm-wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Besides, I also refer the idea of [SamurAIGPT](https://github.com/SamurAIGPT/llm-wiki-agent).
+
 # Setup
 ## UV
 ```
-uv add litellm networkx
+# After install uv and setup anaconda
+uv venv
+source .venv/bin/activate
+uv sync
 ```
 ## Set up API key and model in .env
 
@@ -153,3 +159,6 @@ python run.py lint
 cd /path/to/llm-wiki-agent
 gemini
 ```
+
+# License
+MIT License - see [LICENSE](./LICENSE.md) for details.
