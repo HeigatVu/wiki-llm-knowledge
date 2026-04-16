@@ -92,12 +92,13 @@ Write a comprehensive paragraph defining what `{entity}` means in the context of
             print(f" [!] Failed to generate {entity}: {e}")
 
 if __name__ == "__main__":
-    heal_missing_entities()
-    
-    # Run gemini
+    import argparse
+    parser = argparse.ArgumentParser()
     parser.add_argument("--handoff", action="store_true", 
                         help="Open Gemini CLI after completing")
     args = parser.parse_args()
+
+    heal_missing_entities()
 
     if args.handoff:
         import subprocess
