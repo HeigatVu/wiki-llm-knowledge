@@ -180,6 +180,42 @@ date: YYYY-MM-DD
 ...
 ```
 
+#### Book Template
+---
+title: "Book Title"
+type: source
+tags: [book]
+author: 
+year: 
+source_file: 20_raw/books/...
+---
+
+## Summary
+What is this book's main thesis or contribution in 2–4 sentences.
+
+## Chapter Checkpoints
+
+### Chapter 1: <Title>
+- **Core idea**: ...
+- **Key concepts**: [[Concept1]], [[Concept2]]
+- **Key claims**:
+  - Claim 1
+  - Claim 2
+
+(repeat for all chapters)
+
+## Cross-Cutting Themes
+- Theme 1: appears in chapters X, Y, Z
+- Theme 2: appears in chapters X, Y, Z
+
+## Key Entities
+- [[EntityName]] — role in this book
+
+## Connections
+- [[ConceptName]] — how they relate
+
+## Personal Notes
+- User's own critique or reflection (added after ingestion)
 ---
 
 ## Query Workflow

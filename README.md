@@ -1,12 +1,23 @@
 # LLM Wiki — Personal Knowledge Base
 
-A personal knowledge management system that uses an LLM to ingest your notes and papers into a structured, interlinked wiki. Inspired by [Andrej Karpathy's llm-wiki concept](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) and [SamurAIGPT's llm-wiki-agent](https://github.com/SamurAIGPT/llm-wiki-agent).
+# Background
 
-## Why This Exists
+This repo is a personal LLM-maintained wiki inspired by 
+[Andrej Karpathy's llm-wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) 
+and [SamurAIGPT](https://github.com/SamurAIGPT/llm-wiki-agent).
 
-When reading many papers or building up a body of knowledge, it's hard to see connections between ideas. This repo solves that by letting an LLM automatically extract entities, concepts, and relationships from your notes — then link them together into a queryable wiki. Each project or knowledge domain gets its own wiki instance.
+The core problem it solves: linking knowledge across research 
+papers and personal notes, with an LLM handling all the 
+bookkeeping — extracting concepts, building wikilinks, and 
+detecting gaps automatically.
 
-> **Note:** This repo processes only Markdown files to keep token usage low and responses fast.
+Each project or knowledge domain should have its own separate 
+wiki instance. The pipeline processes markdown files only, 
+keeping token usage low and making all content readable in 
+Obsidian.
+
+> **Note**: This repo processes markdown files only to save 
+> tokens and keep content readable for Gemini CLI.
 
 ---
 
@@ -98,6 +109,21 @@ uv run main.py ingest 20_raw/20.2_notes/
 # Validate wiki integrity only (no ingest)
 uv run main.py ingest --validate-only
 ```
+
+## Gap Analysis
+```bash
+# Run semantic gap analysis (terminal output)
+uv run main.py gap
+
+# Run and save report to 2_graph/gap-report.md
+uv run main.py gap --save
+
+# Rebuild from wiki pages instead of graph.json
+uv run main.py gap --rebuild
+```
+Finds underconnected topic clusters in your research using 
+local graph algorithms — no external API required. Run after 
+`graph` for best results.
 
 ### Query
 
@@ -204,22 +230,157 @@ read WIKI_STATUS.md and tell me what was last done
 
 ---
 
-## Recommended Daily Flow
+# Recommended Workflow
 
+## After every batch of new papers
 ```bash
 # 1. Ingest new notes
-uv run main.py ingest 20_raw/20.2_notes/
-uv run main.py ingest 20_raw/20.3_pdf/
+uv run main.py ingest 20_raw/papers/my_notes/
+uv run main.py ingest 20_raw/my_knowledge_notes/
 
-# 2. Rebuild graph
+# 2. Rebuild knowledge graph
 uv run main.py graph
 
-# 3. Check health
+# 3. Check wiki health
 uv run main.py lint
 
-# 4. Explore interactively
+# 4. Fix missing entity pages (run after lint reports 5+ missing)
+uv run main.py heal
+```
+
+## Every 10 papers ingested
+```bash
+# Detect research gaps
+uv run main.py gap
+
+# Save all reports for Obsidian review
+uv run main.py graph --report --save
+uv run main.py lint --save
+uv run main.py gap --save
+```
+
+## When you edit an existing raw file
+```bash
+# Re-ingest only changed files
+uv run main.py refresh
+
+# Preview what would change without re-ingesting
+uv run main.py refresh --dry-run
+```
+
+## Interactive exploration (Gemini CLI)
+```bash
+cd /path/to/wiki-llm-knowledge
 gemini
 ```
+
+## Paper Ingestion with NotebookLM
+
+For extracting paper summaries, use NotebookLM with the 
+provided prompt to generate markdown following 
+`10_System/Templates/Paper_Summary_Template.md`.
+
+1. Upload your PDF to NotebookLM
+2. Run the extraction prompt (see `10_System/Templates/NotebookLM_Prompt.md`) or use my suggert prompt:
+### paper_prompt
+```
+You are a research assistant helping me summarize academic papers 
+into structured markdown notes. I am a researcher in biosignal processing.
+
+Extract information from this paper and return ONLY a markdown note 
+using EXACTLY this format — no extra text, no preamble:
+
+---
+Title: <paper title>
+Authors: <lastname1, lastname2, ...>
+Year: <year>
+Source: <journal or conference name>
+tags:
+---
+
+## Core Contribution
+One sentence: what specific problem does this paper solve and 
+what is the key novelty?
+
+## Key Methodology (Important)
+Focus heavily on this section. For each method or technique, include:
+- **Method name**: what it is in one line
+  - Input: what signal/data goes in (type, sampling rate, channels if mentioned)
+  - Processing steps: exact sequence of operations
+  - Key parameters: specific values, thresholds, window sizes, filter specs
+  - Output: what comes out
+  
+Cover ALL of these if present in the paper:
+- Signal acquisition setup (hardware, electrode placement, sampling rate)
+- Preprocessing pipeline (filtering, artifact removal, segmentation)
+- Feature extraction methods
+- Classification or modeling approach
+- Evaluation protocol (dataset, cross-validation strategy, metrics)
+
+## Results & Conclusions
+- 3-5 bullet points of key quantitative results (include exact numbers)
+- One sentence on the main conclusion
+- One sentence on stated limitations
+
+## Personal Critique & Ideas for future improvement
+- Leave this section empty — write only a single dash: -
+
+## Related Notes
+- Leave this section empty — write only a single dash: -
+```
+
+### book_prompt
+```
+Can you list out all important contents in this book in order to create
+checkpoints for me to find later — like an index of the book but with
+a little bit extra information.
+
+Format your response EXACTLY like this (I will copy it into my wiki system):
+
+---
+Title: "<Book Title>"
+Authors: "<Author Names>"
+Year: <YYYY>
+Source: "NotebookLM grounded extraction"
+tags: [book]
+---
+
+## Core Contribution
+One sentence: what is this book's main thesis or contribution?
+
+## Chapter Checkpoints
+
+### Chapter 1: <Chapter Title>
+- **Core idea**: <1 sentence>
+- **Key concepts**: <comma-separated list of important terms/ideas>
+- **Key claims**:
+  - <claim 1>
+  - <claim 2>
+- **Notable quotes**: "> quote here" (include page/location if available)
+
+### Chapter 2: <Chapter Title>
+(repeat same structure)
+
+(continue for all chapters)
+
+## Cross-Cutting Themes
+- <Theme 1>: appears in chapters X, Y, Z
+- <Theme 2>: appears in chapters X, Y, Z
+
+## Key Entities
+- <Person/Organization/Product>: <why they matter in this book>
+
+## Related Topics (for linking to other knowledge)
+- <Topic 1>
+- <Topic 2>
+```
+
+3. Save the output to `20_raw/papers/my_notes/<slug>.md`
+4. Run `uv run main.py ingest 20_raw/papers/my_notes/<slug>.md`
+
+> **Note**: Fill in `## Personal Critique` and `## Related Notes` 
+> yourself before ingesting — these sections reflect your own 
+> thinking and are not extracted automatically.
 
 ---
 

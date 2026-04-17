@@ -255,6 +255,21 @@ def build_ingest_prompt(source_content, source, wiki_context, schema, today, not
             - Map Key Methodology items to concept pages aggressively.
             - Include Year and Source in the source page frontmatter.
             """
+    elif note_type == "book":
+        type_instructions = """
+            Note type: BOOK (extracted via NotebookLM — grounded, low hallucination)
+            - This is a structured extraction from a full book. The content is grounded on
+              the actual source text, so treat claims as reliable.
+            - PRESERVE the Chapter Checkpoints structure — do NOT flatten it.
+            - Extract the author as an entity page.
+            - Be VERY aggressive about creating concept pages from Key Concepts in each chapter.
+            - Create entity pages for all people, organizations, and products mentioned.
+            - Cross-Cutting Themes should become concept pages that link to multiple chapters.
+            - The source page should keep the chapter-by-chapter structure for easy lookup.
+            - Add [[wikilinks]] to EVERY concept, entity, and cross-reference inline.
+            - If "Related Topics" or "Cross-Cutting Themes" are listed, check if they match
+              existing wiki concepts and link them. If not, create new concept pages.
+            """
     else:
         type_instructions = """
             Note type: PERSONAL KNOWLEDGE NOTE
@@ -263,23 +278,23 @@ def build_ingest_prompt(source_content, source, wiki_context, schema, today, not
             - Be aggressive about creating concept pages — this note IS the primary source.
             - No external citation to attribute claims to.
             """
-
+ 
     prompt = f"""You are maintaining an LLM Wiki. Process this source document and integrate its knowledge into the wiki.
-
+ 
         {type_instructions}
         Schema and conventions:
         {schema}
-
+ 
         Current wiki state (index + recent pages):
         {wiki_context if wiki_context else "(wiki is empty — this is the first source)"}
-
+ 
         New source to ingest (file: {source.relative_to(REPO_ROOT) if source.is_relative_to(REPO_ROOT) else source.name}):
         === SOURCE START ===
         {source_content}
         === SOURCE END ===
-
+ 
         Today's date: {today}
-
+ 
         Return ONLY a valid JSON object with these fields (no markdown fences, no prose outside the JSON):
         {{
         "title": "Human-readable title for this source",
@@ -301,24 +316,32 @@ def build_ingest_prompt(source_content, source, wiki_context, schema, today, not
 
 def detect_note_type(source_path: Path, content: str) -> str:
     path_str = str(source_path)
-
+ 
     # Path-based detection first — most reliable
     if "papers/my_notes" in path_str or "papers/pdf" in path_str:
         return "paper"
     if "my_knowledge_notes" in path_str:
         return "knowledge"
-
+    # NEW: detect book type
+    if "/books/" in path_str:
+        return "book"
+ 
     # Fallback: inspect frontmatter fields
     frontmatter = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
     if frontmatter:
         fields = frontmatter.group(1)
+ 
+        # NEW: check for book tag in frontmatter
+        if re.search(r'tags:\s*\[.*book.*\]', fields):
+            return "book"
+ 
         has_paper_fields = any(
             re.search(rf'^{field}:', fields, re.MULTILINE)
             for field in ["Title", "Authors", "Year", "Source"]
         )
         if has_paper_fields:
             return "paper"
-
+ 
     return "knowledge"
 
 def read_source(source: Path) -> str:
@@ -362,16 +385,14 @@ def ingest(source_path:str) -> None:
         Path("/tmp/ingest_debug.txt").write_text(raw)
         sys.exit(1)
         
-    # Write source page — sanitize LLM-provided slug and ensure it stays in wiki
-    subdir = "papers" if note_type == "paper" else "notes"
-    try:
-        slug = safe_slug(data["slug"])
-    except ValueError as e:
-        print(f"Error: LLM returned unsafe slug: {e}")
-        sys.exit(1)
-    data["slug"] = slug  # keep downstream consumers in sync
-    source_page_path = safe_wiki_path(f"sources/{subdir}/{slug}.md")
-    write_file(source_page_path, data["source_page"])
+    # Write source page
+    if note_type == "paper":
+        subdir = "papers"
+    elif note_type == "book":
+        subdir = "books"
+    else:
+        subdir = "notes"
+    write_file(WIKI_DIR / "sources" / subdir / f"{data['slug']}.md", data["source_page"])
 
 
     # Write entity pages — validate LLM-provided paths to block traversal.
@@ -412,7 +433,12 @@ def ingest(source_path:str) -> None:
         write_file(OVERVIEW_FILE, data["overview_update"])
         
     # Update index
-    section = "Papers" if note_type == "paper" else "Notes"
+    if note_type == "paper":
+        section = "Papers"
+    elif note_type == "book":
+        section = "Books"
+    else:
+        section = "Notes"
     update_index(data["index_entry"], section=section)
     
     # Log
@@ -487,6 +513,7 @@ def update_status(action: str, details: str):
     # Count pages by type
     papers = list((WIKI_DIR / "sources" / "papers").glob("*.md")) if (WIKI_DIR / "sources" / "papers").exists() else []
     notes = list((WIKI_DIR / "sources" / "notes").glob("*.md")) if (WIKI_DIR / "sources" / "notes").exists() else []
+    books = list((WIKI_DIR / "sources" / "books").glob("*.md")) if (WIKI_DIR / "sources" / "books").exists() else []
     entities = list((WIKI_DIR / "entities").glob("*.md")) if (WIKI_DIR / "entities").exists() else []
     concepts = list((WIKI_DIR / "concepts").glob("*.md")) if (WIKI_DIR / "concepts").exists() else []
 
@@ -497,6 +524,7 @@ Last action: {action}
 ## Stats
 - Papers: {len(papers)}
 - Knowledge notes: {len(notes)}
+- Books: {len(books)}
 - Entities: {len(entities)}
 - Concepts: {len(concepts)}
 
