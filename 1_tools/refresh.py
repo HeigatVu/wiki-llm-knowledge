@@ -5,7 +5,6 @@ import hashlib
 import re
 from typing import Optional
 from pathlib import Path
-from datetime import date
 
 REPO_ROOT = Path(__file__).parent.parent
 WIKI_DIR = REPO_ROOT / "30_wiki"

@@ -4,7 +4,6 @@ import json
 import hashlib
 import re
 from pathlib import Path 
-from collections import defaultdict
 from datetime import date
 
 REPO_ROOT = Path(__file__).parent.parent

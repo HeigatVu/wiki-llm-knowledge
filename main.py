@@ -1,7 +1,11 @@
 import sys
 import subprocess
 from pathlib import Path
+from pathlib import Path
+from dotenv import load_dotenv
 
+REPO_ROOT = Path(__file__).parent
+load_dotenv(REPO_ROOT / ".env")
 REPO_ROOT = Path(__file__).parent
 
 TOOL_MAP = {
@@ -12,16 +16,6 @@ TOOL_MAP = {
     "refresh": "1_tools/refresh.py",
     "heal":    "1_tools/heal.py",
 }
-
-# Manually load .env since some environments don't auto-load it
-env_path = REPO_ROOT / ".env"
-if env_path.exists():
-    import os
-    for line in env_path.read_text().splitlines():
-        line = line.strip()
-        if line and not line.startswith("#") and "=" in line:
-            key, val = line.split("=", 1)
-            os.environ[key.strip()] = val.strip().strip("'\"")
 
 def main():
     if len(sys.argv) < 2:
