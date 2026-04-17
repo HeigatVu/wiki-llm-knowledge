@@ -291,11 +291,17 @@ Extract information from this paper and return ONLY a markdown note
 using EXACTLY this format — no extra text, no preamble:
 
 ---
+
 Title: <paper title>
+
 Authors: <lastname1, lastname2, ...>
+
 Year: <year>
+
 Source: <journal or conference name>
+
 tags:
+
 ---
 
 ## Core Contribution
@@ -321,12 +327,14 @@ Cover ALL of these if present in the paper:
 - 3-5 bullet points of key quantitative results (include exact numbers)
 - One sentence on the main conclusion
 - One sentence on stated limitations
+  
+If research paper is a litetature review, you focus on technique that they use pros/cons and it performance on dataset.
 
 ## Personal Critique & Ideas for future improvement
-- Leave this section empty — write only a single dash: -
+- In the paper has this part, you can write in there
 
 ## Related Notes
-- Leave this section empty — write only a single dash: -
+- Compare with previous paper that I give you write in [[**file name without extension** of similar paper]]
 ```
 
 ### book_prompt
@@ -338,11 +346,17 @@ a little bit extra information.
 Format your response EXACTLY like this (I will copy it into my wiki system):
 
 ---
+
 Title: "<Book Title>"
+
 Authors: "<Author Names>"
+
 Year: <YYYY>
+
 Source: "NotebookLM grounded extraction"
+
 tags: [book]
+
 ---
 
 ## Core Contribution
