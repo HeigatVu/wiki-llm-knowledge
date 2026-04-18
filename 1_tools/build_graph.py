@@ -7,7 +7,8 @@ import webbrowser
 from pathlib import Path
 from datetime import date
 
-import os
+from utils import _call_ollama, _call_gemini
+
 
 from utils import _call_gemini
 
