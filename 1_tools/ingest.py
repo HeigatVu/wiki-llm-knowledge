@@ -496,25 +496,34 @@ def update_status(action: str, details: str):
     concepts = list((WIKI_DIR / "concepts").glob("*.md")) if (WIKI_DIR / "concepts").exists() else []
 
     content = f"""# Wiki Status
-Last updated: {today}
-Last action: {action}
+                Last updated: {today}
+                Last action: {action}
 
-## Stats
-- Papers: {len(papers)}
-- Knowledge notes: {len(notes)}
-- Books: {len(books)}
-- Entities: {len(entities)}
-- Concepts: {len(concepts)}
+                ## Stats
+                - Papers: {len(papers)}
+                - Knowledge notes: {len(notes)}
+                - Books: {len(books)}
+                - Entities: {len(entities)}
+                - Concepts: {len(concepts)}
 
-## Last Action Details
-{details}
+                ## Last Action Details
+                {details}
 
-## Suggested Next Steps
-- Run `/wiki-query` to explore what was just added
-- Run `/wiki-lint` to check for gaps or contradictions
-- Run `/wiki-graph` to rebuild the knowledge graph
-"""
-    status_path.write_text(content, encoding="utf-8")    
+                ## Suggested Next Steps
+                - Run `/wiki-query` to explore what was just added
+                - Run `/wiki-lint` to check for gaps or contradictions
+                - Run `/wiki-graph` to rebuild the knowledge graph
+                """
+    status_path.write_text(content, encoding="utf-8")
+
+    # NEW — rebuild root ATLAS after every ingest
+    atlas_script = REPO_ROOT.parent / "update_atlas.py"
+    if atlas_script.exists():
+        import subprocess
+        subprocess.run(
+            [sys.executable, str(atlas_script)],
+            cwd=REPO_ROOT.parent
+        )
 
 
 if __name__ == "__main__":
