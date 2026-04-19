@@ -23,6 +23,7 @@ Example: "Wiki has 12 papers, 8 notes, 34 concepts. Last action: ingest | Attent
 | `/wiki-gap` | `find research gaps` |
 | `/wiki-heal` | `heal missing pages` |
 | `/wiki-refresh` | `refresh indices` |
+| `/wiki-cluster` | `analyze cluster 4: main themes?` |
 
 Or just describe what you want in plain English:
 - *"Ingest this file: 20_raw/papers/attention-is-all-you-need.md"*
@@ -221,6 +222,19 @@ Triggered by: *"query: <question>"*
 2. Read those pages
 3. Synthesize answer with `[[PageName]]` citations
 4. Offer to save as `30_wiki/syntheses/<slug>.md`
+
+---
+
+## Cluster Query Workflow
+
+Triggered by: *"/wiki-cluster <ID>: <question>"* or *"analyze cluster <ID>"*
+
+1. Read `2_graph/graph.json`
+2. Identify all nodes where `math_id == <ID>`
+3. Read the markdown files for those specific nodes
+4. Synthesize an answer using **only** those nodes as context
+5. Cite with `[[PageName]]`
+6. Offer to save as `30_wiki/syntheses/cluster-<ID>-<slug>.md`
 
 ---
 

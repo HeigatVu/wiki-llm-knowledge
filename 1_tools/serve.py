@@ -54,10 +54,14 @@ class GraphChatHandler(http.server.SimpleHTTPRequestHandler):
             
             question = data.get("question", "")
             model = data.get("model", "gemini")
+            clusters = data.get("clusters", [])
+            if not isinstance(clusters, list):
+                clusters = [clusters] if clusters is not None else []
+            clusters = [int(c) for c in clusters if c is not None]
             
             try:
-                print(f"Calling Global Wiki Query for: {question[:50]}...")
-                response = wiki_query(question, save_path=None, model=model)
+                print(f"Calling Global Wiki Query for: {question[:50]}... (Clusters: {clusters})")
+                response = wiki_query(question, save_path=None, model=model, clusters=clusters)
             except Exception as e:
                 response = f"Error running global query: {e}"
                 

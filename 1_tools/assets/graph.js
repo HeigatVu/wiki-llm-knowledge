@@ -1,7 +1,20 @@
+  function updateGlobalQueryFilterInfo() {
+    const info = document.getElementById("global-query-filter-info");
+    if (!info) return;
+    if (selectedClusterIds.size > 0) {
+      info.style.display = "block";
+      const ids = Array.from(selectedClusterIds).sort((a,b) => a-b);
+      info.textContent = `🎯 Filtering by Clusters: ${ids.join(", ")}`;
+    } else {
+      info.style.display = "none";
+    }
+  }
+
   function toggleGlobalQuery() {
     const panel = document.getElementById("global-query-panel");
     panel.style.display = panel.style.display === "none" ? "flex" : "none";
     if (panel.style.display === "flex") {
+      updateGlobalQueryFilterInfo();
       document.getElementById("global-query-input").focus();
     }
   }
@@ -32,7 +45,11 @@
       const res = await fetch("/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: question, model: selectedModel })
+        body: JSON.stringify({ 
+          question: question, 
+          model: selectedModel,
+          clusters: Array.from(selectedClusterIds)
+        })
       });
       
       if (res.ok) {
@@ -97,8 +114,6 @@ const searchResults = document.getElementById("search-results");
 const stats = document.getElementById("stats");
 const controls = {
   extracted: document.getElementById("cb-extracted"),
-  confSlider: document.getElementById("conf-slider"),
-  confValue: document.getElementById("conf-val"),
 };
 const nodeMap = new Map(originalNodes.map(node => [node.id, node]));
 let activeNodeId = null;
@@ -113,7 +128,7 @@ const COMMUNITY_COLORS = [
 ];
 
 const hiddenClusters = new Set();
-let activeClusterId = null;
+const selectedClusterIds = new Set();
 
 function toggleClusterVisibility(clusterId) {
   if (hiddenClusters.has(clusterId)) {
@@ -124,18 +139,31 @@ function toggleClusterVisibility(clusterId) {
   applyFilters();
 }
 
-function selectCluster(id) {
-  // Toggle selection
-  if (activeClusterId === id) {
-    activeClusterId = null;
+function selectCluster(id, event) {
+  // If Ctrl or Meta key is pressed, toggle selection. Otherwise, select only this one.
+  if (event && (event.ctrlKey || event.metaKey)) {
+    if (selectedClusterIds.has(id)) {
+      selectedClusterIds.delete(id);
+    } else {
+      selectedClusterIds.add(id);
+    }
   } else {
-    activeClusterId = id;
-    // Clear node selection to avoid confusion
-    if (network) network.selectNodes([]);
-    activeNodeId = null;
-    closeDrawer();
+    if (selectedClusterIds.has(id) && selectedClusterIds.size === 1) {
+      selectedClusterIds.clear();
+    } else {
+      selectedClusterIds.clear();
+      selectedClusterIds.add(id);
+    }
   }
+
+  // Clear node selection to avoid confusion
+  if (network) network.selectNodes([]);
+  activeNodeId = null;
+  closeDrawer();
+  
+  updateGlobalQueryFilterInfo();
   populateClusterList();
+  applyFilters();
 }
 
 function toggleAllClusters(visible) {
@@ -168,13 +196,13 @@ function populateClusterList() {
   list.innerHTML = entries.map(([id, name]) => {
     const color = COMMUNITY_COLORS[id % COMMUNITY_COLORS.length];
     const isChecked = !hiddenClusters.has(id);
-    const isSelected = activeClusterId === id;
+    const isSelected = selectedClusterIds.has(id);
     
     return `<div style="margin-bottom:8px; padding:4px; border-radius:4px; background:${isSelected ? 'rgba(134,200,255,0.15)' : 'transparent'}; border:1px solid ${isSelected ? 'rgba(134,200,255,0.3)' : 'transparent'}">
       <div style="display:flex; align-items:center; gap:8px;">
         <input type="checkbox" data-id="${id}" ${isChecked ? 'checked' : ''} onchange="toggleClusterVisibility(${id})" style="width:12px; height:12px; cursor:pointer; flex-shrink:0;">
         <span style="width:10px; height:10px; background:${color}; border-radius:2px; display:inline-block; flex-shrink:0;"></span>
-        <span onclick="selectCluster(${id})" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500; font-size:12px; color:${isSelected ? '#fff' : '#eee'}; cursor:pointer; flex:1;" title="Click to chat about this cluster">${name}</span>
+        <span onclick="selectCluster(${id}, event)" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500; font-size:12px; color:${isSelected ? '#fff' : '#eee'}; cursor:pointer; flex:1;" title="Click to filter. Ctrl+Click to multi-select.">${name}</span>
       </div>
     </div>`;
   }).join("");
@@ -387,18 +415,13 @@ function rebuildAdjacency(filteredEdges) {
 }
 
 function currentEdgeState() {
-  const minConf = parseInt(controls.confSlider.value, 10) / 100;
-  controls.confValue.textContent = minConf.toFixed(2);
   return {
     showExtracted: controls.extracted ? controls.extracted.checked : true,
-    minConf,
   };
 }
 
 function passesEdgeFilters(edge, edgeState) {
-  const typeOk = (edge.type === "EXTRACTED" && edgeState.showExtracted);
-  const confOk = (edge.confidence ?? 1.0) >= edgeState.minConf;
-  return typeOk && confOk;
+  return (edge.type === "EXTRACTED" && edgeState.showExtracted);
 }
 
 function searchNodes(q) {
@@ -607,12 +630,13 @@ async function sendChat() {
       fullContext += `Other nodes in this same cluster (mathematical neighbors): ${neighbors.join(", ")}.\n`;
     }
     fullContext += `\nContent of [[${node.label}]]:\n${node.markdown || "No content available."}`;
-  } else if (activeClusterId !== null) {
-    const clusterNodes = originalNodes.filter(n => n.math_id === activeClusterId);
+  } else if (selectedClusterIds.size > 0) {
+    const ids = Array.from(selectedClusterIds);
+    const clusterNodes = originalNodes.filter(n => selectedClusterIds.has(n.math_id));
     const labels = clusterNodes.map(n => n.label);
-    fullContext = `Current Context: Selected Cluster ${activeClusterId}\n`;
-    fullContext += `This cluster contains ${labels.length} notes: ${labels.join(", ")}\n`;
-    fullContext += `\nPlease summarize the themes and connections within this specific group of notes.`;
+    fullContext = `Current Context: Selected Clusters ${ids.join(", ")}\n`;
+    fullContext += `This selection contains ${labels.length} notes: ${labels.join(", ")}\n`;
+    fullContext += `\nPlease compare the themes and connections across these specific groups of notes.`;
   } else {
     fullContext = "Global Context: No specific node or cluster selected. Here is the current clustering structure:\n\n";
     const clusters = {};

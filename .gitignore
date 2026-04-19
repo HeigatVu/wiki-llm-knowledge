@@ -17,3 +17,4 @@ __pycache__/
 !10_System/
 !10_System/Templates/
 !10_System/Templates/*.md
+.agents

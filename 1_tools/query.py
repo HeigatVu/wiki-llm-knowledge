@@ -5,7 +5,11 @@ import argparse
 from pathlib import Path
 from datetime import date
 
-from utils import _call_ollama, _call_gemini, call_gemini_cli, read_file, write_file, append_log, safe_wiki_path, REPO_ROOT, WIKI_DIR, LOG_FILE, INDEX_FILE, OVERVIEW_FILE, SCHEMA_FILE
+from utils import (
+    _call_ollama, _call_gemini, call_gemini_cli, read_file, write_file, 
+    append_log, safe_wiki_path, REPO_ROOT, WIKI_DIR, LOG_FILE, 
+    INDEX_FILE, OVERVIEW_FILE, SCHEMA_FILE, GRAPH_JSON
+)
 
 
 def find_relevant_pages(question: str, index_content: str, model: str = "ollama") -> list[Path]:
@@ -49,53 +53,37 @@ def find_relevant_pages(question: str, index_content: str, model: str = "ollama"
 
     return relevant[:15]
 
-
-def query(question: str, save_path: str | None = None, model: str = "ollama"):
+def query(question: str, save_path: str | None = None, model: str = "ollama", clusters: list[int] = []):
     today = date.today().isoformat()
+    relevant_pages = []
 
-    # Step 1: Read index
-    index_content = read_file(INDEX_FILE)
-    if not index_content:
-        print("Wiki is empty. Ingest some sources first with: python tools/ingest.py <source>")
-        sys.exit(1)
-
-    # Step 2: Find relevant pages
-    relevant_pages = find_relevant_pages(question, index_content, model=model)
-
-    # If no keyword match, ask Claude to identify relevant pages from the index
-    if not relevant_pages or len(relevant_pages) <= 1:
-        print("  selecting relevant pages via API...")
-        prompt = f"""Given this wiki index:
-
-            {index_content}
-
-            Which pages are most relevant to answering: "{question}"
-
-            Guidelines:
-            - For questions about research, methodology, or what papers say → prefer pages under sources/papers/
-            - For questions about personal understanding or concepts → prefer pages under sources/notes/
-            - Always include overview.md if the question is broad or thematic
-
-            Return ONLY a JSON array of relative file paths exactly as listed in the index.
-            Examples: ["sources/papers/slug.md", "sources/notes/slug.md", "concepts/Bar.md"]
-            Maximum 10 pages.
-            """
-        if model == "gemini-cli":
-            raw = call_gemini_cli(prompt)
-        elif model == "gemini":
-            raw = _call_gemini(prompt, max_tokens=512)
-        else:
-            raw = _call_ollama(prompt, max_tokens=512)
-        raw = raw.strip()
-        # Try to find a JSON array in the output
-        json_match = re.search(r"(\[[\s\S]*\])", raw)
-        if json_match:
-            raw = json_match.group(1)
+    # Step 1: If clusters are specified, use graph nodes
+    if clusters:
+        if not GRAPH_JSON.exists():
+            print(f"Error: graph.json not found at {GRAPH_JSON}. Run 'main.py graph' first.")
+            sys.exit(1)
+        
         try:
-            paths = json.loads(raw)
-            relevant_pages = [WIKI_DIR / p for p in paths if (WIKI_DIR / p).exists()]
-        except (json.JSONDecodeError, TypeError):
-            pass
+            graph_data = json.loads(GRAPH_JSON.read_text(encoding="utf-8"))
+            cluster_nodes = [n for n in graph_data.get("nodes", []) if n.get("math_id") in clusters]
+            if not cluster_nodes:
+                print(f"Warning: No nodes found in Clusters {clusters}. Falling back to default search.")
+            else:
+                print(f"  Filtering context to Clusters {clusters} ({len(cluster_nodes)} pages)...")
+                relevant_pages = [REPO_ROOT / n["path"] for n in cluster_nodes if (REPO_ROOT / n["path"]).exists()]
+        except Exception as e:
+            print(f"Error reading graph.json: {e}")
+            sys.exit(1)
+
+    # Step 2: Read index if not using cluster or cluster was empty
+    if not relevant_pages:
+        index_content = read_file(INDEX_FILE)
+        if not index_content:
+            print("Wiki is empty. Ingest some sources first.")
+            sys.exit(1)
+
+        # Find relevant pages via LLM
+        relevant_pages = find_relevant_pages(question, index_content, model=model)
 
     # Step 3: Read relevant pages
     pages_context = ""
@@ -181,6 +169,7 @@ def query(question: str, save_path: str | None = None, model: str = "ollama"):
 
     # Append to log
     append_log(f"## [{today}] query | {question[:80]}\n\nSynthesized answer from {len(relevant_pages)} pages." +
+               (f" (Clusters {clusters})" if clusters else "") +
                (f" Saved to {save_path}." if save_path else ""))
     
     return answer
@@ -191,7 +180,9 @@ if __name__ == "__main__":
     parser.add_argument("question", help="Question to ask the wiki")
     parser.add_argument("--save", nargs="?", const="", default=None,
                         help="Save answer to wiki (optionally specify path)")
+    parser.add_argument("--cluster", type=int, action="append", dest="clusters", default=[],
+                        help="Analyze specific cluster IDs (can be used multiple times)")
     parser.add_argument("--model", choices=["ollama", "gemini", "gemini-cli"], default="ollama",
                         help="Choose which LLM backend to use (default: ollama)")
     args = parser.parse_args()
-    query(args.question, args.save, args.model)
+    query(args.question, args.save, args.model, args.clusters)

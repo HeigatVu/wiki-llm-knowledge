@@ -60,13 +60,6 @@
     </div>
     <div id="path-result" style="margin-top:6px;font-size:11px;color:#FFD54F;display:none;"></div>
   </div>
-  <div class="filter-group">
-    <label>Min Confidence</label>
-    <div class="slider-row">
-      <input type="range" id="conf-slider" min="0" max="100" value="50" oninput="applyFilters()">
-      <span class="slider-val" id="conf-val">0.50</span>
-    </div>
-  </div>
   <div class="filter-group" id="timeline-group" style="display:none;">
     <label>Timeline Filter</label>
     <div class="slider-row">
@@ -78,24 +71,27 @@
 </div>
 <div id="graph"></div>
 
-<!-- Global Query UI -->
-<button id="btn-global-query" style="position:fixed;bottom:20px;left:20px;z-index:100;padding:12px 20px;background:#1a1d2e;color:#86c8ff;border:1px solid rgba(134,200,255,0.3);border-radius:24px;cursor:pointer;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.5);font-weight:bold;transition:0.2s;" onclick="toggleGlobalQuery()">
-  ✨ Global Wiki Query
-</button>
+<!-- Bottom Centered Action Buttons -->
+<div style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:100; display:flex; gap:12px; align-items:center;">
+  <button id="btn-global-query" style="padding:12px 20px; background:#1a1d2e; color:#86c8ff; border:1px solid rgba(134,200,255,0.3); border-radius:24px; cursor:pointer; font-size:14px; box-shadow:0 4px 12px rgba(0,0,0,0.5); font-weight:bold; transition:0.2s;" onclick="toggleGlobalQuery()">
+    ✨ Global Wiki Query
+  </button>
+  
+  <button id="btn-rebuild" onclick="rebuildGraph()" style="padding:12px 20px; background:#1a1d2e; color:#a0e0a0; border:1px solid rgba(160,224,160,0.3); border-radius:24px; cursor:pointer; font-size:14px; box-shadow:0 4px 12px rgba(0,0,0,0.5); font-weight:bold; transition:0.2s;">
+    🔄 Rebuild Graph
+  </button>
+</div>
 
-<button id="btn-rebuild" onclick="rebuildGraph()" style="position:fixed;bottom:20px;left:210px;z-index:100;padding:12px 20px;background:#1a1d2e;color:#a0e0a0;border:1px solid rgba(160,224,160,0.3);border-radius:24px;cursor:pointer;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.5);font-weight:bold;transition:0.2s;">
-  🔄 Rebuild Graph
-</button>
-
-<div id="rebuild-toast" style="display:none;position:fixed;bottom:70px;left:210px;z-index:100;max-width:340px;background:#1a1d2e;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.6);font-size:13px;color:#ccc;line-height:1.5;">
+<div id="rebuild-toast" style="display:none;position:fixed;bottom:75px;left:50%;transform:translateX(-50%);z-index:100;max-width:340px;background:#1a1d2e;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.6);font-size:13px;color:#ccc;line-height:1.5;">
   <div id="rebuild-toast-msg"></div>
 </div>
 
-<div id="global-query-panel" style="display:none;position:fixed;bottom:70px;left:20px;z-index:100;width:400px;background:#1a1d2e;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,0.6);display:flex;flex-direction:column;gap:10px;">
+<div id="global-query-panel" style="display:none;position:fixed;bottom:75px;left:50%;transform:translateX(-50%);z-index:100;width:400px;background:#1a1d2e;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,0.6);display:flex;flex-direction:column;gap:10px;">
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <h3 style="margin:0;color:#ddd;font-size:15px;">Search Entire Wiki</h3>
     <button onclick="toggleGlobalQuery()" style="background:none;border:none;color:#888;cursor:pointer;font-size:16px;">&times;</button>
   </div>
+  <div id="global-query-filter-info" style="font-size:11px; color:#86c8ff; background:rgba(134,200,255,0.05); padding:4px 8px; border-radius:4px; display:none;"></div>
   <div id="global-query-history" style="max-height:300px;min-height:100px;overflow-y:auto;font-size:13px;color:#ccc;display:flex;flex-direction:column;gap:8px;"></div>
   <div style="display:flex;gap:6px;">
     <input type="text" id="global-query-input" placeholder="What are the main themes?" style="flex:1;background:#222;color:#eee;border:1px solid #444;border-radius:4px;padding:8px;font-size:13px;" onkeypress="if(event.key === 'Enter') sendGlobalQuery()">

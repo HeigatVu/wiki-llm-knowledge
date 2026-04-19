@@ -229,6 +229,7 @@ Inside Gemini CLI you can use slash commands or plain English:
 | `/wiki-gap` | Run Gap Analysis |
 | `/wiki-heal` | Run Heal Workflow |
 | `/wiki-refresh` | Run Refresh Workflow |
+| `/wiki-cluster 4: <question>` | Run explore Cluster |
 
 > **Note**: Gemini CLI uses your Google account quota (separate from the API key quota). If the API key hits its daily limit, Gemini CLI continues to work.
 
